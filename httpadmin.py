@@ -30,10 +30,6 @@ class httpadmin(znc.Module):
 	user_cache = {}
 	network_cache = {}
 
-	def GetWebMenuTitle(self):
-		return self.description
-
-
 
 	def OnLoad(self, args, message):
 		return True
@@ -70,35 +66,37 @@ class httpadmin(znc.Module):
 
 
 
-	def OnWebRequest(self, WebSock, sPageName, Tmpl):
-		action = sPageName
-		Tmpl.SetFile("empty.tmpl")
+	def OnWebPreRequest(self, WebSock, sPageName):
+		if (not WebSock.GetSession().IsAdmin()):
+			WebSock.PrintErrorPage(403, "Forbidden", "You need to be an admin to access this page");
+			return True
 
 		ret = {"error": "unknown_method"}
+		action = sPageName
 
 		if (action == "adduser"):
-			ret = self.ApiAddUser(WebSock, Tmpl)
+			ret = self.ApiAddUser(WebSock)
 
 		elif (action == "deluser"):
-			ret = self.ApiDelUser(WebSock, Tmpl)
+			ret = self.ApiDelUser(WebSock)
 
 		elif (action == "userpassword"):
-			ret = self.ApiUserPassword(WebSock, Tmpl)
+			ret = self.ApiUserPassword(WebSock)
 
 		elif (action == "addnetwork"):
-			ret = self.ApiAddNetwork(WebSock, Tmpl)
+			ret = self.ApiAddNetwork(WebSock)
 
 		elif (action == "delnetwork"):
-			ret = self.ApiDelNetwork(WebSock, Tmpl)
+			ret = self.ApiDelNetwork(WebSock)
 
 		elif (action == "listnetworks"):
-			ret = self.ApiListNetworks(WebSock, Tmpl)
+			ret = self.ApiListNetworks(WebSock)
 
 		elif (action == "networkconnect"):
-			ret = self.ApiNetworkConnect(WebSock, Tmpl)
+			ret = self.ApiNetworkConnect(WebSock)
 
-		elif (action == "networkdixconnect"):
-			ret = self.ApiNetworkDisconnect(WebSock, Tmpl)
+		elif (action == "networkdisconnect"):
+			ret = self.ApiNetworkDisconnect(WebSock)
 
 
 		response_format = WebSock.GetParam("response", False)
@@ -114,16 +112,17 @@ class httpadmin(znc.Module):
 			for key in ret.keys():
 				response_text += key + "=" + str(ret[key]) + ", "
 
-		Tmpl["response"] = response_text
+		WebSock.PrintHeader(len(response_text))
+		WebSock.Write(response_text)
+		WebSock.Close(znc.Csock.CLT_AFTERWRITE)
 
 		return True
 
 
 
-	def ApiAddUser(self, WebSock, Tmpl):
+	def ApiAddUser(self, WebSock):
 		username = WebSock.GetParam("username", False)
 		password = WebSock.GetParam("password", False)
-		#ret = self.http_api.AddUser(username, password)
 
 		if (username == "" or password == ""):
 			return {"error": "invalid_params"}
@@ -147,9 +146,8 @@ class httpadmin(znc.Module):
 
 
 
-	def ApiDelUser(self, WebSock, Tmpl):
+	def ApiDelUser(self, WebSock):
 		username = WebSock.GetParam("username", False)
-		#ret = self.http_api.AddUser(username, password)
 
 		if (username == "" ):
 			return {"error": "invalid_params"}
@@ -172,10 +170,9 @@ class httpadmin(znc.Module):
 
 
 
-	def ApiUserPassword(self, WebSock, Tmpl):
+	def ApiUserPassword(self, WebSock):
 		username = WebSock.GetParam("username", False)
 		password = WebSock.GetParam("password", False)
-		#ret = self.http_api.AddUser(username, password)
 
 		if (username == "" or password == ""):
 			return {"error": "invalid_params"}
@@ -194,7 +191,7 @@ class httpadmin(znc.Module):
 
 
 
-	def ApiAddNetwork(self, WebSock, Tmpl):
+	def ApiAddNetwork(self, WebSock):
 		username = WebSock.GetParam("username", False)
 		net_name = WebSock.GetParam("net_name", False)
 		net_addr = WebSock.GetParam("net_addr", False)
@@ -229,7 +226,7 @@ class httpadmin(znc.Module):
 
 
 
-	def ApiDelNetwork(self, WebSock, Tmpl):
+	def ApiDelNetwork(self, WebSock):
 		username = WebSock.GetParam("username", False)
 		net_name = WebSock.GetParam("net_name", False)
 
@@ -251,7 +248,7 @@ class httpadmin(znc.Module):
 
 
 
-	def ApiListNetworks(self, WebSock, Tmpl):
+	def ApiListNetworks(self, WebSock):
 		username = WebSock.GetParam("username", False)
 
 		if (username == ""):
@@ -280,7 +277,7 @@ class httpadmin(znc.Module):
 
 
 
-	def ApiNetworkConnect(self, WebSock, Tmpl):
+	def ApiNetworkConnect(self, WebSock):
 		username = WebSock.GetParam("username", False)
 		net_name = WebSock.GetParam("net_name", False)
 
@@ -297,7 +294,7 @@ class httpadmin(znc.Module):
 
 
 
-	def ApiNetworkDisconnect(self, WebSock, Tmpl):
+	def ApiNetworkDisconnect(self, WebSock):
 		username = WebSock.GetParam("username", False)
 		net_name = WebSock.GetParam("net_name", False)
 
