@@ -5,6 +5,10 @@ Response formats (via the response query string value):
 	response=pairs    Key+Value pairs
 
 
+API HTTP root (once loaded into ZNC as a global module):
+	/mods/global/httpadmin/
+
+
 API functions:
 	/adduser              (username, password)
 	/deluser              (username)
