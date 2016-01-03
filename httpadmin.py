@@ -20,6 +20,12 @@ API functions:
 	/networkconnect       (username, net_name)
 	/networkdisconnect    (username, net_name)
 
+
+API example URLS:
+	/mods/global/httpadmin/adduser?username=prawnsalad&password=mypassword
+	/mods/global/httpadmin/addnetwork?username=prawnsalad&net_name=freenode&net_addr=irc.freenode.net&net_port=6667
+	/mods/global/httpadmin/listnetworks?username=prawnsalad
+
 """
 
 
