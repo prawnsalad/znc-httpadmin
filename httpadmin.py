@@ -31,9 +31,6 @@ class httpadmin(znc.Module):
 
 	description = "HTTP admin interface to ZNC"
 
-	user_cache = {}
-	network_cache = {}
-
 
 	def OnLoad(self, args, message):
 		return True
@@ -41,22 +38,15 @@ class httpadmin(znc.Module):
 
 
 	def GetUser(self, username):
-		if (username in self.user_cache):
-			user = self.user_cache[username]
-		else:
-			user = znc.CZNC.Get().FindUser(username)
+		user = znc.CZNC.Get().FindUser(username)
 
-			if (user):
-				self.user_cache[username] = user
+		if (user):
+			user.thisown = 0
 
 		return user
 
 
 	def GetNetwork(self, username, net_name):
-		key = username + "-" + net_name
-		if (key in self.network_cache):
-			return self.network_cache[key]
-
 		user = self.GetUser(username)
 		if (not user):
 			return False
@@ -65,7 +55,7 @@ class httpadmin(znc.Module):
 		if (not network):
 			return False
 
-		self.network_cache[key] = network
+		network.thisown = 0
 		return network
 
 
@@ -141,9 +131,7 @@ class httpadmin(znc.Module):
 		if (znc.CZNC.Get().AddUser(new_user, str_err) == False):
 			return {"error": "error_adding_user", "description": str_err.s}
 
-		# Cache the user to get around python deleting the user again
-		# https://github.com/znc/znc/issues/462#issuecomment-32209823
-		self.user_cache[username] = new_user
+		new_user.thisown = 0
 		znc.CZNC.Get().WriteConfig()
 
 		return {"error": False}
@@ -162,11 +150,6 @@ class httpadmin(znc.Module):
 
 		if (znc.CZNC.Get().DeleteUser(username) == False):
 			return {"error": "error_deleting_user"}
-
-		# Cache the user to get around python deleting the user again
-		# https://github.com/znc/znc/issues/462#issuecomment-32209823
-		if (self.user_cache[username]):
-			del self.user_cache[username]
 
 		znc.CZNC.Get().WriteConfig()
 
@@ -223,7 +206,7 @@ class httpadmin(znc.Module):
 		if (success == False):
 			return {"error": "error_adding_network"}
 
-		self.network_cache[username + "-" + net_name] = network
+		network.thisown = 0
 		znc.CZNC.Get().WriteConfig()
 
 		return {"error": False}
@@ -244,9 +227,6 @@ class httpadmin(znc.Module):
 		user.DeleteNetwork(net_name)
 
 		znc.CZNC.Get().WriteConfig()
-
-		if (self.network_cache[username + "-" + net_name]):
-			del self.network_cache[username + "-" + net_name]
 
 		return {"error": False}
 
