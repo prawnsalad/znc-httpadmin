@@ -5,6 +5,11 @@ Response formats (via the response query string value):
 	response=pairs    Key+Value pairs
 
 
+Auth
+	All API requests require a login for an admin ZNC user. Use HTTP Basic Auth
+	to pass the login credentials to ZNC.
+
+
 API HTTP root (once loaded into ZNC as a global module):
 	/mods/global/httpadmin/
 
@@ -25,6 +30,10 @@ API example URLS:
 	/mods/global/httpadmin/adduser?username=prawnsalad&password=mypassword
 	/mods/global/httpadmin/addnetwork?username=prawnsalad&net_name=freenode&net_addr=irc.freenode.net&net_port=6667
 	/mods/global/httpadmin/listnetworks?username=prawnsalad
+
+
+CURL example
+	$ curl --user admin:1234 "http://127.0.0.1:3000/mods/global/httpadmin/adduser?username=prawnsalad&password=mypassword"
 
 """
 
