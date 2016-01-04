@@ -66,11 +66,15 @@ class httpadmin(znc.Module):
 
 
 
-	def OnWebPreRequest(self, WebSock, sPageName):
-		if (not WebSock.GetSession().IsAdmin()):
-			WebSock.PrintErrorPage(403, "Forbidden", "You need to be an admin to access this page");
-			return True
+	def WebRequiresLogin(self):
+		return True
 
+
+	def WebRequiresAdmin(self):
+		return True
+
+
+	def OnWebPreRequest(self, WebSock, sPageName):
 		ret = {"error": "unknown_method"}
 		action = sPageName
 
